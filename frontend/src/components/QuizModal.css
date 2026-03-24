@@ -1,0 +1,113 @@
+.overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, .5);
+    z-index: 200;
+    display: none;
+    align-items: center;
+    justify-content: center;
+}
+
+.overlay.show {
+    display: flex;
+}
+
+.quiz-modal {
+    background: #fff;
+    border-radius: 16px;
+    padding: 32px;
+    max-width: 500px;
+    width: 90%;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, .25);
+}
+
+.quiz-modal h3 {
+    font-size: 1.1em;
+    font-weight: 800;
+    margin-bottom: 6px;
+}
+
+.quiz-modal p.sub {
+    font-size: .82em;
+    color: var(--muted);
+    margin-bottom: 24px;
+}
+
+.q-box {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 16px;
+    margin-bottom: 16px;
+}
+
+.q-box .q-text {
+    font-size: .9em;
+    font-weight: 600;
+    margin-bottom: 12px;
+}
+
+.q-opts {
+    display: flex;
+    flex-direction: column;
+    gap: 7px;
+}
+
+.q-opt {
+    padding: 9px 14px;
+    border: 1.5px solid var(--border);
+    border-radius: 8px;
+    font-size: .83em;
+    cursor: pointer;
+    transition: .2s;
+    background: #fff;
+}
+
+.q-opt:hover,
+.q-opt.sel {
+    border-color: var(--p1);
+    background: rgba(79, 70, 229, .07);
+    color: var(--p1);
+}
+
+.q-opt.correct {
+    border-color: #22c55e;
+    background: #f0fdf4;
+    color: #15803d;
+}
+
+.q-opt.wrong {
+    border-color: #ef4444;
+    background: #fef2f2;
+    color: #b91c1c;
+}
+
+.quiz-btns {
+    display: flex;
+    gap: 10px;
+    justify-content: flex-end;
+    margin-top: 6px;
+}
+
+.btn-close {
+    padding: 10px 20px;
+    border: 1.5px solid var(--border);
+    border-radius: 8px;
+    background: #fff;
+    font-family: 'Inter', sans-serif;
+    font-size: .88em;
+    cursor: pointer;
+    font-weight: 600;
+}
+
+.btn-submit-q {
+    padding: 10px 20px;
+    background: linear-gradient(135deg, var(--p1), var(--p2));
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    font-family: 'Inter', sans-serif;
+    font-size: .88em;
+    font-weight: 700;
+    cursor: pointer;
+}

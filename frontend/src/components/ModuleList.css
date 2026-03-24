@@ -1,0 +1,100 @@
+.modules-col {
+    background: #fff;
+    border-right: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    height: 100%;
+}
+
+.col-header {
+    padding: 16px 18px;
+    border-bottom: 1px solid var(--border);
+    font-size: .88em;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.progress-bar {
+    height: 4px;
+    background: var(--border);
+    border-radius: 2px;
+    margin: 10px 18px;
+}
+
+.progress-fill {
+    height: 100%;
+    width: 35%;
+    background: linear-gradient(90deg, var(--p1), var(--p2));
+    border-radius: 2px;
+}
+
+.mod-list {
+    flex: 1;
+    overflow-y: auto;
+    padding: 10px;
+}
+
+.module-group {
+    margin-bottom: 10px;
+}
+
+.mod-group-title {
+    font-size: .72em;
+    font-weight: 700;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: .5px;
+    padding: 6px 8px;
+}
+
+.lesson-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 9px 10px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: .2s;
+    font-size: .82em;
+}
+
+.lesson-item:hover {
+    background: var(--bg);
+}
+
+.lesson-item.active {
+    background: rgba(79, 70, 229, .08);
+    color: var(--p1);
+}
+
+.lesson-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    border: 2px solid var(--border);
+    flex-shrink: 0;
+}
+
+.lesson-item.done .lesson-dot {
+    background: var(--p1);
+    border-color: var(--p1);
+}
+
+.lesson-item.active .lesson-dot {
+    background: var(--p2);
+    border-color: var(--p2);
+}
+
+.lesson-title {
+    flex: 1;
+    line-height: 1.3;
+}
+
+.dur-badge {
+    font-size: .7em;
+    color: var(--muted);
+    flex-shrink: 0;
+}

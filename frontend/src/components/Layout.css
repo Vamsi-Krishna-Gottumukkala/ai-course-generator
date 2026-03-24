@@ -1,0 +1,24 @@
+.app-layout {
+    --p1: #4F46E5;
+    --p2: #7C3AED;
+    --c1: #06B6D4;
+    --bg: #F8FAFF;
+    --white: #fff;
+    --text: #1E293B;
+    --muted: #64748B;
+    --border: #E2E8F0;
+    --r: 14px;
+    
+    font-family: 'Inter', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    display: flex;
+    height: 100vh;
+    overflow: hidden;
+}
+
+.main-content {
+    flex: 1;
+    overflow-y: auto;
+    /* padding is specific to the page so won't put it here */
+}
