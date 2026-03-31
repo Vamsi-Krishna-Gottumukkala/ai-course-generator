@@ -2,8 +2,9 @@
     border-left: 1px solid var(--border);
     display: flex;
     flex-direction: column;
-    background: #fff;
+    background: var(--white);
     height: 100%;
+    color: var(--text);
 }
 
 .tutor-header {
@@ -92,7 +93,7 @@
 }
 
 .msg.ai {
-    background: #F1F5F9;
+    background: var(--bg);
     color: var(--text);
     align-self: flex-start;
     border-bottom-left-radius: 3px;
@@ -121,6 +122,8 @@
     font-size: .83em;
     outline: none;
     transition: .2s;
+    color: var(--text);
+    background: var(--bg);
 }
 
 .chat-input-row input:focus {

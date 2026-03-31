@@ -20,7 +20,9 @@ const ModuleList = ({ course, activeLesson, onSelectLesson }) => {
                         <div className="mod-group-title">Module {idx + 1} — {mod.title}</div>
                         
                         {(mod.lessons || []).map((lesson, lIdx) => {
-                            const isActive = activeLesson === lesson;
+                            // Support both old string array and new object array
+                            const lessonTitle = typeof lesson === 'string' ? lesson : lesson.title;
+                            const isActive = activeLesson && (typeof activeLesson === 'string' ? activeLesson === lessonTitle : activeLesson.title === lessonTitle);
                             return (
                                 <div 
                                     key={lIdx} 
@@ -28,7 +30,7 @@ const ModuleList = ({ course, activeLesson, onSelectLesson }) => {
                                     onClick={() => onSelectLesson(lesson)}
                                 >
                                     <div className="lesson-dot"></div>
-                                    <span className="lesson-title">{lesson}</span>
+                                    <span className="lesson-title">{lessonTitle}</span>
                                     <span className="dur-badge">Vid</span>
                                 </div>
                             );

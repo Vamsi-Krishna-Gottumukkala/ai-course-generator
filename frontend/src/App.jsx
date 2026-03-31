@@ -4,7 +4,8 @@ import Login from './pages/Login';
 import Dashboard from './pages/Dashboard';
 import Generate from './pages/Generate';
 import CourseView from './pages/CourseView';
-import Admin from './pages/Admin';
+import MyCourses from './pages/MyCourses';
+import Test from './pages/Test';
 
 function App() {
   return (
@@ -14,8 +15,9 @@ function App() {
         <Route path="/login" element={<Login />} />
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/generate" element={<Generate />} />
-        <Route path="/course" element={<CourseView />} />
-        <Route path="/admin" element={<Admin />} />
+        <Route path="/course" element={<MyCourses />} />
+        <Route path="/course/:id" element={<CourseView />} />
+        <Route path="/test" element={<Test />} />
       </Routes>
     </BrowserRouter>
   )

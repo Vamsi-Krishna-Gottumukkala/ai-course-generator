@@ -5,13 +5,13 @@
     --p2: #7C3AED;
     --c1: #06B6D4;
     --c2: #0EA5E9;
-    --bg: #F8FAFF;
-    --white: #fff;
-    --text: #1E293B;
-    --muted: #64748B;
-    --border: #E2E8F0;
+    --bg: #0F172A;
+    --white: #1E293B;
+    --text: #F8FAFC;
+    --muted: #94A3B8;
+    --border: #334155;
     --r: 14px;
-    --shadow: 0 4px 24px rgba(79, 70, 229, .10);
+    --shadow: 0 4px 24px rgba(0, 0, 0, .3);
 
     font-family: 'Inter', sans-serif;
     background: var(--bg);
@@ -41,17 +41,15 @@
     align-items: center;
     justify-content: space-between;
     padding: 18px 60px;
-    background: rgba(248, 250, 255, .88);
+    background: linear-gradient(135deg, var(--p1), var(--p2));
     backdrop-filter: blur(12px);
-    border-bottom: 1px solid var(--border);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .landing-page .logo {
     font-size: 1.25em;
     font-weight: 800;
-    background: linear-gradient(135deg, var(--p1), var(--p2));
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
+    color: #fff;
 }
 
 .landing-page .nav-links {
@@ -59,11 +57,11 @@
     gap: 32px;
     font-size: .9em;
     font-weight: 500;
-    color: var(--muted);
+    color: rgba(255, 255, 255, 0.85);
 }
 
 .landing-page .nav-links a:hover {
-    color: var(--p1);
+    color: #fff;
 }
 
 .landing-page .nav-cta {
@@ -74,23 +72,25 @@
 
 .landing-page .btn-outline {
     padding: 9px 20px;
-    border: 1.5px solid var(--p1);
+    border: 1.5px solid rgba(255, 255, 255, 0.6);
+    background: transparent;
     border-radius: 8px;
-    color: var(--p1);
+    color: #fff;
     font-weight: 600;
     font-size: .88em;
     transition: .2s;
 }
 
 .landing-page .btn-outline:hover {
-    background: var(--p1);
+    background: rgba(255, 255, 255, 0.1);
+    border-color: #fff;
     color: #fff;
 }
 
 .landing-page .btn-primary {
     padding: 9px 22px;
-    background: linear-gradient(135deg, var(--p1), var(--p2));
-    color: #fff;
+    background: #fff;
+    color: var(--p1);
     border-radius: 8px;
     font-weight: 600;
     font-size: .88em;
@@ -113,7 +113,7 @@
     justify-content: center;
     text-align: center;
     padding: 120px 60px 60px;
-    background: linear-gradient(160deg, #EEF2FF 0%, #F0EBFF 50%, #E0F2FE 100%);
+    background: radial-gradient(circle at 50% 10%, #1E293B 0%, var(--bg) 60%);
     position: relative;
     overflow: hidden;
 }
@@ -130,7 +130,7 @@
     display: inline-flex;
     align-items: center;
     gap: 8px;
-    background: #fff;
+    background: var(--white);
     border: 1px solid var(--border);
     border-radius: 20px;
     padding: 6px 16px;
@@ -209,14 +209,14 @@
 }
 
 .landing-page .btn-hero.secondary {
-    background: #fff;
-    color: var(--p1);
-    border: 2px solid var(--p1);
+    background: transparent;
+    color: var(--text);
+    border: 2px solid var(--border);
 }
 
 .landing-page .btn-hero.secondary:hover {
-    background: var(--p1);
-    color: #fff;
+    background: var(--white);
+    color: var(--text);
 }
 
 .landing-page .hero-stats {
@@ -276,7 +276,7 @@
 
 /* ── HOW IT WORKS ── */
 .landing-page .how-section {
-    background: #fff;
+    background: var(--white);
     padding: 80px 0;
 }
 
@@ -345,7 +345,7 @@
 }
 
 .landing-page .feat {
-    background: #fff;
+    background: var(--white);
     border: 1px solid var(--border);
     border-radius: var(--r);
     padding: 28px;

@@ -5,7 +5,6 @@ import './Login.css';
 
 const Login = () => {
     const [activeTab, setActiveTab] = useState('login');
-    const [role, setRole] = useState('Student');
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [fullName, setFullName] = useState('');
@@ -42,7 +41,7 @@ const Login = () => {
             const { error } = await supabase.auth.signUp({ 
                 email, 
                 password,
-                options: { data: { fullName, role } }
+                options: { data: { fullName } }
             });
             if (error) throw error;
             alert('Signup successful! Please log in.');
@@ -91,11 +90,6 @@ const Login = () => {
                     {/* LOGIN PANEL */}
                     {activeTab === 'login' && (
                         <div className="panel active">
-                            <div className="role-btns">
-                                <div className={`role-btn ${role === 'Student' ? 'sel' : ''}`} onClick={() => setRole('Student')}>Student</div>
-                                <div className={`role-btn ${role === 'Teacher' ? 'sel' : ''}`} onClick={() => setRole('Teacher')}>Teacher</div>
-                                <div className={`role-btn ${role === 'Admin' ? 'sel' : ''}`} onClick={() => setRole('Admin')}>Admin</div>
-                            </div>
                             <button className="btn-google">
                                 <svg width="18" height="18" viewBox="0 0 48 48">
                                     <path fill="#FFC107" d="M43.6 20H24v8h11.3C33.7 34.3 29.3 37 24 37c-7.2 0-13-5.8-13-13s5.8-13 13-13c3.1 0 5.9 1.1 8.1 2.9l6-6C34.6 5.1 29.6 3 24 3 12.4 3 3 12.4 3 24s9.4 21 21 21c10.5 0 20-7.6 20-21 0-1.3-.2-2.7-.4-4z" />
@@ -128,10 +122,6 @@ const Login = () => {
                     {/* REGISTER PANEL */}
                     {activeTab === 'register' && (
                         <div className="panel active">
-                            <div className="role-btns">
-                                <div className={`role-btn ${role === 'Student' ? 'sel' : ''}`} onClick={() => setRole('Student')}>Student</div>
-                                <div className={`role-btn ${role === 'Teacher' ? 'sel' : ''}`} onClick={() => setRole('Teacher')}>Teacher</div>
-                            </div>
                             <form onSubmit={handleSignup}>
                                 <div className="field">
                                     <label>Full Name</label>

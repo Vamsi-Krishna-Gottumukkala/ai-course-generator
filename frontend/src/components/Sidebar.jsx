@@ -14,12 +14,10 @@ const Sidebar = ({ activePage }) => {
         <aside className="sidebar">
             <div className="logo">AI CourseGen</div>
             <nav className="nav">
-                <Link className={`nl ${activePage === 'home' ? 'active' : ''}`} to="/">🏠 Home</Link>
                 <Link className={`nl ${activePage === 'dashboard' ? 'active' : ''}`} to="/dashboard">📊 Dashboard</Link>
                 <Link className={`nl ${activePage === 'generate' ? 'active' : ''}`} to="/generate">✨ Generate Course</Link>
                 <Link className={`nl ${activePage === 'course' ? 'active' : ''}`} to="/course">📚 My Courses</Link>
-                <Link className={`nl ${activePage === 'progress' ? 'active' : ''}`} to="#">📈 Progress</Link>
-                <Link className={`nl ${activePage === 'admin' ? 'active' : ''}`} to="/admin">⚙️ Admin</Link>
+                <Link className={`nl ${activePage === 'test' ? 'active' : ''}`} to="/test">🎯 Take Test</Link>
             </nav>
             <div className="sidebar-foot">
                 <a href="#" onClick={handleLogout}>← Logout</a>

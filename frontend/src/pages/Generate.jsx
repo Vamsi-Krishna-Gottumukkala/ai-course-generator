@@ -1,16 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { generateCourse } from '../services/api';
+import { supabase } from '../services/supabase';
 import Layout from '../components/Layout';
 import './Generate.css';
 
-const demoModules = [
-    { title: 'Introduction & Foundations', lessons: ['Core concepts overview', 'Key terminology', 'Historical context', 'Why this matters today'] },
-    { title: 'Core Principles', lessons: ['Fundamental theory', 'Building blocks', 'Step-by-step breakdown', 'Worked examples'] },
-    { title: 'Practical Application', lessons: ['Real-world use cases', 'Hands-on exercises', 'Mini project', 'Common mistakes'] },
-    { title: 'Advanced Topics', lessons: ['Deep dive concepts', 'Optimisation techniques', 'Best practices', 'Industry standards'] },
-    { title: 'Assessment & Review', lessons: ['Module quizzes', 'Adaptive practice problems', 'Revision flashcards', 'Final project guide'] },
-];
+// Dynamic demo modules will be generated based on the topic to show a preview skeletal structure.
 
 const Generate = () => {
     const navigate = useNavigate();
@@ -36,12 +31,38 @@ const Generate = () => {
         }
         setIsGenerating(true);
         try {
+            // Ensure logged in
+            const { data: { session } } = await supabase.auth.getSession();
+            if (!session) {
+                alert("You need to log in to generate and save courses.");
+                navigate('/login');
+                return;
+            }
+
+            // Generate content
             const response = await generateCourse({ topic, level, goals, duration, mode });
-            localStorage.setItem('currentCourse', JSON.stringify(response.data));
-            navigate('/course');
+            
+            // Insert to DB
+            const { data: dbCourse, error } = await supabase
+                .from('courses')
+                .insert([{
+                    user_id: session.user.id,
+                    topic,
+                    level,
+                    goals,
+                    duration,
+                    content: { ...response.data, mode }
+                }])
+                .select()
+                .single();
+
+            if (error) throw error;
+            
+            navigate(`/course/${dbCourse.id}`);
         } catch (error) {
             console.error('Generation Error:', error);
             alert('Failed to generate course. Check backend console for details.');
+        } finally {
             setIsGenerating(false);
         }
     };
@@ -128,8 +149,8 @@ const Generate = () => {
                             <div className="mode-grid">
                                 {[
                                     { l: 'Text Only', i: '📝' },
-                                    { l: 'Video + Text', i: '🎬' },
-                                    { l: 'Interactive', i: '🖥️' },
+                                    { l: 'Video + Text', i: '📺' },
+                                    { l: 'Video', i: '🎥' },
                                     { l: 'Fast Track', i: '⚡' },
                                 ].map(m => (
                                     <div 
@@ -149,44 +170,6 @@ const Generate = () => {
                         </button>
                     </div>
 
-                    {/* PREVIEW */}
-                    <div className="preview-pane">
-                        <h2>Course Preview <span className="live-badge">LIVE</span></h2>
-                        
-                        {!debouncedTopic ? (
-                            <div className="empty-preview">
-                                <div className="icon">🧠</div>
-                                <p>Start typing a topic to see your AI-generated course outline appear here in real time.</p>
-                            </div>
-                        ) : (
-                            <div>
-                                <div className="course-title-preview">{debouncedTopic}</div>
-                                <div className="course-meta">
-                                    <span>📶 {level}</span>
-                                    <span>📦 5 Modules</span>
-                                    <span>🎬 15 Lessons</span>
-                                    <span>📝 5 Quizzes</span>
-                                </div>
-                                
-                                {demoModules.map((m, i) => (
-                                    <div key={i} className="module-card">
-                                        <div className="mc-header">
-                                            <div className="module-chip">M{i + 1}</div>
-                                            <h3>{m.title}: {debouncedTopic}</h3>
-                                        </div>
-                                        <ul>
-                                            {m.lessons.map((l, li) => <li key={li}>{l}</li>)}
-                                        </ul>
-                                        <div className="tags">
-                                            <span className="tag">AI Generated</span>
-                                            <span className="tag">Quiz Included</span>
-                                            <span className="tag">Videos</span>
-                                        </div>
-                                    </div>
-                                ))}
-                            </div>
-                        )}
-                    </div>
                 </div>
             </div>
         </Layout>

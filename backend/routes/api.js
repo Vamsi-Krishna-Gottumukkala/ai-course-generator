@@ -1,5 +1,5 @@
 import express from 'express';
-import { generateCourse, generateQuiz, generateChatReply } from '../services/gemini.js';
+import { generateCourse, generateQuiz, generateChatReply, generateTest } from '../services/gemini.js';
 import { fetchVideos } from '../services/youtube.js';
 import { requireAuth } from '../middleware/auth.js';
 
@@ -35,6 +35,20 @@ router.post('/generate-quiz', async (req, res) => {
     } catch (error) {
         console.error('Error generating quiz:', error);
         res.status(500).json({ error: 'Failed to generate quiz' });
+    }
+});
+
+router.post('/generate-test', async (req, res) => {
+    try {
+        const { topic, courseContent } = req.body;
+        
+        if (!courseContent) return res.status(400).json({ error: 'Course content is required' });
+
+        const testData = await generateTest(topic, courseContent);
+        res.json(testData);
+    } catch (error) {
+        console.error('Error generating test:', error);
+        res.status(500).json({ error: 'Failed to generate test' });
     }
 });
 

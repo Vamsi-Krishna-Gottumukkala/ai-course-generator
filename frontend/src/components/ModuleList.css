@@ -1,10 +1,11 @@
 .modules-col {
-    background: #fff;
+    background: var(--white);
     border-right: 1px solid var(--border);
     display: flex;
     flex-direction: column;
     overflow: hidden;
     height: 100%;
+    color: var(--text);
 }
 
 .col-header {
@@ -15,6 +16,7 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
+    color: var(--text);
 }
 
 .progress-bar {
@@ -59,6 +61,7 @@
     cursor: pointer;
     transition: .2s;
     font-size: .82em;
+    color: var(--text);
 }
 
 .lesson-item:hover {
