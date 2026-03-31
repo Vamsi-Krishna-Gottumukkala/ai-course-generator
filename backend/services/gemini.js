@@ -84,7 +84,8 @@ Output strictly valid JSON with the following structure:
     });
 
     try {
-        return JSON.parse(response.text);
+        let cleaned = response.text.replace(/```json/gi, "").replace(/```/g, "").trim();
+        return JSON.parse(cleaned);
     } catch (e) {
         console.error("Failed to parse JSON", response.text);
         throw new Error("Invalid output format from AI. Expected JSON.");
@@ -129,7 +130,8 @@ Output strictly valid JSON matching this schema:
     });
 
     try {
-        return JSON.parse(response.text);
+        let cleaned = response.text.replace(/```json/gi, "").replace(/```/g, "").trim();
+        return JSON.parse(cleaned);
     } catch (e) {
         console.error("Failed to parse Quiz JSON", response.text);
         throw new Error("Invalid quiz output format from AI.");
@@ -177,7 +179,8 @@ Output strictly valid JSON matching this exact schema for exactly 20 questions:
     });
 
     try {
-        return JSON.parse(response.text);
+        let cleaned = response.text.replace(/```json/gi, "").replace(/```/g, "").trim();
+        return JSON.parse(cleaned);
     } catch (e) {
         console.error("Failed to parse Test JSON", response.text);
         throw new Error("Invalid test output format from AI.");

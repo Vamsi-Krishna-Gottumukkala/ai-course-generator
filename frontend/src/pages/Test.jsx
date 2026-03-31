@@ -96,11 +96,14 @@ const Test = () => {
                 missedTopics: missedTopics.slice(0, 5) // keep it brief
             };
             
-            courseData.testHistory = [newHistoryBlock, ...history];
+            const newContent = { ...courseData, testHistory: [newHistoryBlock, ...history] };
+            
+            // Critical fix: update React state so the Rebuild function later has access to this data!
+            setSelectedCourse(prev => ({ ...prev, content: newContent }));
             
             await supabase
                 .from('courses')
-                .update({ content: courseData })
+                .update({ content: newContent })
                 .eq('id', selectedCourse.id);
                 
         } catch (e) {
