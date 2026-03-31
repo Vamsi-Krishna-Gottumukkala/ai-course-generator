@@ -1,15 +1,16 @@
 # AI Course Generator
 
-This project is an AI-powered course generator featuring a modern frontend (React + Vite) and a robust backend (Node.js + Express).
+This project is an AI-powered course generator featuring a modern frontend (React + Vite), a robust primary backend (Node.js + Express), and a specialized machine learning backend (Python + FastAPI).
 
 ## Requirements
 
 - [Node.js](https://nodejs.org/) (v16+ recommended)
 - npm (comes with Node.js)
+- [Python](https://www.python.org/) 3.9+
 
 ## Setup & Installation
 
-Follow these steps to get the application running locally. You will need to start both the backend server and the frontend development server in separate terminal windows.
+Follow these steps to get the application running locally. You will need to start the primary Node backend, the Python ML backend, and the frontend development server in separate terminal windows.
 
 ---
 
@@ -69,7 +70,40 @@ Follow these steps to get the application running locally. You will need to star
    ```
    *The frontend should typically be accessible in your browser at `http://localhost:5173`.*
 
+---
+
+### 3. ML Backend Setup
+
+1. Open a new terminal from the root directory and navigate to the `ml-backend` folder:
+   ```bash
+   cd ml-backend
+   ```
+
+2. Create and activate a Python virtual environment:
+   - **On Windows:**
+     ```bash
+     python -m venv venv
+     .\venv\Scripts\activate
+     ```
+   - **On macOS/Linux:**
+     ```bash
+     python3 -m venv venv
+     source venv/bin/activate
+     ```
+
+3. Install the required dependencies:
+   ```bash
+   pip install -r requirements.txt
+   ```
+
+4. Start the ML backend server:
+   ```bash
+   uvicorn main:app --reload
+   ```
+   *(The ML backend should default to running on `http://127.0.0.1:8000`)*
+
 ## Architecture
 
 - **Frontend:** Built with React, Vite, React Router, Supabase Client, and styled with Tailwind/Vanilla CSS.
-- **Backend:** Powered by Express, utilizing Google's Gemini AI, and protected with basic JWT authentication mechanisms.
+- **Primary Backend (Node):** Powered by Express for primary API routes and authentication.
+- **ML Backend (Python):** Built with FastAPI, handling core generation, data collection, and machine learning components.
