@@ -7,6 +7,7 @@ const Sidebar = ({ activePage }) => {
 
     const handleLogout = (e) => {
         e.preventDefault();
+        localStorage.removeItem('isAdmin');
         navigate('/login');
     };
 
@@ -14,10 +15,15 @@ const Sidebar = ({ activePage }) => {
         <aside className="sidebar">
             <div className="logo">AI CourseGen</div>
             <nav className="nav">
-                <Link className={`nl ${activePage === 'dashboard' ? 'active' : ''}`} to="/dashboard">📊 Dashboard</Link>
-                <Link className={`nl ${activePage === 'generate' ? 'active' : ''}`} to="/generate">✨ Generate Course</Link>
-                <Link className={`nl ${activePage === 'course' ? 'active' : ''}`} to="/course">📚 My Courses</Link>
-                <Link className={`nl ${activePage === 'test' ? 'active' : ''}`} to="/test">🎯 Take Test</Link>
+                {localStorage.getItem('isAdmin') ? (
+                    <Link className={`nl ${activePage === 'admin' ? 'active' : ''}`} to="/admin">⚙️ Admin Panel</Link>
+                ) : (
+                    <>
+                        <Link className={`nl ${activePage === 'dashboard' ? 'active' : ''}`} to="/dashboard">📊 Dashboard</Link>
+                        <Link className={`nl ${activePage === 'generate' ? 'active' : ''}`} to="/generate">✨ Generate Course</Link>
+                        <Link className={`nl ${activePage === 'course' ? 'active' : ''}`} to="/course">📚 My Courses</Link>
+                    </>
+                )}
             </nav>
             <div className="sidebar-foot">
                 <a href="#" onClick={handleLogout}>← Logout</a>

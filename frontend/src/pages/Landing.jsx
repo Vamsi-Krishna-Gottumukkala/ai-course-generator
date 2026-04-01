@@ -67,7 +67,7 @@ const Landing = () => {
                             <div className="step-num">02</div>
                             <div className="step-icon">🤖</div>
                             <h3>AI Builds Your Course</h3>
-                            <p>Our Gemini-powered engine generates modules, lessons, curated videos, code snippets, and quizzes instantly.</p>
+                            <p>Our completely AI-powered engine generates modules, lessons, curated videos, code snippets, and quizzes instantly.</p>
                         </div>
                         <div className="step-card">
                             <div className="step-num">03</div>
@@ -88,7 +88,7 @@ const Landing = () => {
                         <div className="feat">
                             <div className="feat-icon" style={{ background: '#EEF2FF' }}>🧠</div>
                             <h3>AI Course Generation</h3>
-                            <p>NLP + RAG + Gemini transformer generates full structured courses from a single topic input.</p>
+                            <p>NLP + RAG + AI transformer generates full structured courses from a single topic input.</p>
                         </div>
                         <div className="feat">
                             <div className="feat-icon" style={{ background: '#F0FDF4' }}>🎬</div>

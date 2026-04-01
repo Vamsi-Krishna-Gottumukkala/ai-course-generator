@@ -22,7 +22,17 @@ const Login = () => {
 
     const handleLogin = async (e) => {
         e.preventDefault();
+        
+        // Admin Gateway Intercept
+        if (email === 'admin@gmail.com' && password === 'admin@1234') {
+            localStorage.setItem('isAdmin', 'true');
+            navigate('/admin');
+            return;
+        }
+        
         setLoading(true);
+        // Wipe any dormant admin sessions if logging in as standard user
+        localStorage.removeItem('isAdmin');
         try {
             const { error } = await supabase.auth.signInWithPassword({ email, password });
             if (error) throw error;

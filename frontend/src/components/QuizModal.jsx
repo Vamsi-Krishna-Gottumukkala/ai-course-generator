@@ -60,7 +60,7 @@ const QuizModal = ({ isVisible, onClose, lessonContent }) => {
                 <h3>📝 Lesson Quiz</h3>
                 <p className="sub">{loading ? 'AI is generating questions...' : `${questions.length} Questions · Auto-graded · Instant explanation`}</p>
                 
-                {loading && <div style={{ padding: '40px', textAlign: 'center' }}>Generating Quiz... Requesting from Gemini API.</div>}
+                {loading && <div style={{ padding: '40px', textAlign: 'center' }}>Generating Quiz... Requesting from AI API.</div>}
 
                 {!loading && questions.map((q, qIdx) => (
                     <div key={qIdx} className="q-box">

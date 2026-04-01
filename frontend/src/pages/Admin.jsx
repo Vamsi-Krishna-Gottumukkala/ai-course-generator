@@ -1,211 +1,236 @@
-import React, { useState } from 'react';
-import Layout from '../components/Layout';
-import './Admin.css';
+import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import Layout from "../components/Layout";
+import { supabase } from "../services/supabase";
+import "./Admin.css";
 
 const Admin = () => {
-    const [activeTab, setActiveTab] = useState('users');
+  const navigate = useNavigate();
+  const [activeTab, setActiveTab] = useState("users");
 
-    return (
-        <Layout activePage="admin">
-            <div className="admin-page">
-                {/* TOP */}
-                <div className="top-bar">
-                    <h1>⚙️ Admin Panel</h1>
-                    <span className="admin-chip">Admin Access</span>
-                </div>
+  // Stats State
+  const [stats, setStats] = useState({
+    totalCourses: 0,
+    totalUsers: 0,
+    recentCourses: [],
+    allUsers: [],
+  });
+  const [loading, setLoading] = useState(true);
 
-                {/* STATS */}
-                <div className="stats">
-                    <div className="stat">
-                        <div className="s-label">Total Users</div>
-                        <div className="s-val" style={{ color: 'var(--p1)' }}>1,248</div>
-                        <div className="s-trend up">↑ 34 this week</div>
-                    </div>
-                    <div className="stat">
-                        <div className="s-label">Courses Generated</div>
-                        <div className="s-val" style={{ color: 'var(--p2)' }}>5,892</div>
-                        <div className="s-trend up">↑ 412 this week</div>
-                    </div>
-                    <div className="stat">
-                        <div className="s-label">API Calls Today</div>
-                        <div className="s-val" style={{ color: 'var(--c1)' }}>24.7K</div>
-                        <div className="s-trend up">↑ 12% vs yesterday</div>
-                    </div>
-                    <div className="stat">
-                        <div className="s-label">System Uptime</div>
-                        <div className="s-val" style={{ color: '#22c55e' }}>99.8%</div>
-                        <div className="s-trend up">✓ All systems healthy</div>
-                    </div>
-                </div>
+  useEffect(() => {
+    // Enforce admin gateway
+    const isAdmin = localStorage.getItem("isAdmin");
+    if (!isAdmin) {
+      navigate("/login");
+      return;
+    }
 
-                {/* TABS */}
-                <div className="tab-bar">
-                    <div className={`t ${activeTab === 'users' ? 'active' : ''}`} onClick={() => setActiveTab('users')}>👥 Users</div>
-                    <div className={`t ${activeTab === 'api' ? 'active' : ''}`} onClick={() => setActiveTab('api')}>📡 API Monitor</div>
-                    <div className={`t ${activeTab === 'content' ? 'active' : ''}`} onClick={() => setActiveTab('content')}>📁 Content</div>
-                    <div className={`t ${activeTab === 'feedback' ? 'active' : ''}`} onClick={() => setActiveTab('feedback')}>💬 Feedback</div>
-                </div>
+    const fetchAdminData = async () => {
+      // Because Supabase RLS may restrict normal users, an Admin role or bypass is ideal.
+      // Assuming this development database allows broad selects for the dashboard:
+      const { data: courses, error } = await supabase
+        .from("courses")
+        .select("*")
+        .order("created_at", { ascending: false });
 
-                {/* USERS SECTION */}
-                {activeTab === 'users' && (
-                    <div id="users">
-                        <div className="sec-title">User Management</div>
-                        <div className="table-card">
-                            <table>
-                                <thead>
-                                    <tr>
-                                        <th>User</th>
-                                        <th>Role</th>
-                                        <th>Courses</th>
-                                        <th>Last Active</th>
-                                        <th>Status</th>
-                                        <th>Actions</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <tr>
-                                        <td><strong>Aditya Kumar</strong><br/><span style={{ color: 'var(--muted)', fontSize: '.78em' }}>aditya@email.com</span></td>
-                                        <td><span className="badge b-student">Student</span></td>
-                                        <td>3</td>
-                                        <td>Today</td>
-                                        <td><span className="badge b-active">Active</span></td>
-                                        <td><button className="action-btn">View</button> <button className="action-btn danger">Suspend</button></td>
-                                    </tr>
-                                    <tr>
-                                        <td><strong>Priya Sharma</strong><br/><span style={{ color: 'var(--muted)', fontSize: '.78em' }}>priya@email.com</span></td>
-                                        <td><span className="badge b-teacher">Teacher</span></td>
-                                        <td>12</td>
-                                        <td>Yesterday</td>
-                                        <td><span className="badge b-active">Active</span></td>
-                                        <td><button className="action-btn">View</button> <button className="action-btn danger">Suspend</button></td>
-                                    </tr>
-                                    <tr>
-                                        <td><strong>Rahul Mehta</strong><br/><span style={{ color: 'var(--muted)', fontSize: '.78em' }}>rahul@email.com</span></td>
-                                        <td><span className="badge b-student">Student</span></td>
-                                        <td>1</td>
-                                        <td>3 days ago</td>
-                                        <td><span className="badge b-inactive">Inactive</span></td>
-                                        <td><button className="action-btn">View</button> <button className="action-btn danger">Remove</button></td>
-                                    </tr>
-                                    <tr>
-                                        <td><strong>Admin User</strong><br/><span style={{ color: 'var(--muted)', fontSize: '.78em' }}>admin@system.com</span></td>
-                                        <td><span className="badge b-admin">Admin</span></td>
-                                        <td>—</td>
-                                        <td>Now</td>
-                                        <td><span className="badge b-active">Active</span></td>
-                                        <td><button className="action-btn">View</button></td>
-                                    </tr>
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-                )}
+      if (error) {
+        console.error("Failed to load admin stats", error);
+        setLoading(false);
+        return;
+      }
 
-                {/* API SECTION */}
-                {activeTab === 'api' && (
-                    <div id="api">
-                        <div className="sec-title">API Quota Monitoring</div>
-                        <div className="api-grid">
-                            <div className="api-card">
-                                <div className="api-name">Gemini AI API</div>
-                                <div className="api-status">
-                                    <div className="api-dot" style={{ background: '#22c55e' }}></div>
-                                    <span style={{ color: '#15803d' }}>Operational</span>
-                                </div>
-                                <div className="quota-bar">
-                                    <div className="quota-fill" style={{ width: '62%', background: 'linear-gradient(90deg,var(--p1),var(--p2))' }}></div>
-                                </div>
-                                <div className="quota-text">62,000 / 100,000 calls used today</div>
-                            </div>
-                            <div className="api-card">
-                                <div className="api-name">YouTube Data API</div>
-                                <div className="api-status">
-                                    <div className="api-dot" style={{ background: '#22c55e' }}></div>
-                                    <span style={{ color: '#15803d' }}>Operational</span>
-                                </div>
-                                <div className="quota-bar">
-                                    <div className="quota-fill" style={{ width: '45%', background: 'linear-gradient(90deg,var(--c1),#0284c7)' }}></div>
-                                </div>
-                                <div className="quota-text">4,500 / 10,000 units used</div>
-                            </div>
-                            <div className="api-card">
-                                <div className="api-name">NLP / RAG Engine</div>
-                                <div className="api-status">
-                                    <div className="api-dot" style={{ background: '#f59e0b' }}></div>
-                                    <span style={{ color: '#a16207' }}>High Load</span>
-                                </div>
-                                <div className="quota-bar">
-                                    <div className="quota-fill" style={{ width: '88%', background: 'linear-gradient(90deg,#f59e0b,#ef4444)' }}></div>
-                                </div>
-                                <div className="quota-text">8,800 / 10,000 requests (88% used)</div>
-                            </div>
-                        </div>
-                    </div>
-                )}
+      // Parse Total Courses
+      const totalCourses = courses ? courses.length : 0;
+      const recentCourses = courses ? courses.slice(0, 10) : [];
 
-                {/* CONTENT SECTION */}
-                {activeTab === 'content' && (
-                    <div id="content">
-                        <div className="sec-title">AI Content Moderation</div>
-                        <div className="table-card">
-                            <table>
-                                <thead>
-                                    <tr>
-                                        <th>Course Title</th>
-                                        <th>Generated By</th>
-                                        <th>Modules</th>
-                                        <th>Status</th>
-                                        <th>Actions</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <tr>
-                                        <td><strong>Intro to Machine Learning</strong></td>
-                                        <td>AI (Gemini)</td>
-                                        <td>5</td>
-                                        <td><span className="badge b-active">Approved</span></td>
-                                        <td><button className="action-btn">Review</button> <button className="action-btn danger">Remove</button></td>
-                                    </tr>
-                                    <tr>
-                                        <td><strong>Python for Beginners</strong></td>
-                                        <td>AI (Gemini)</td>
-                                        <td>7</td>
-                                        <td><span className="badge" style={{ background: 'rgba(234,179,8,.1)', color: '#a16207' }}>Pending</span></td>
-                                        <td><button className="action-btn">Review</button> <button className="action-btn danger">Remove</button></td>
-                                    </tr>
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-                )}
+      // Parse Total Unique Users (extracting UUIDs from course records)
+      const activeUserHashes = {};
+      courses.forEach((c) => {
+        if (c.user_id)
+          activeUserHashes[c.user_id] = (activeUserHashes[c.user_id] || 0) + 1;
+      });
+      const totalUsers = Object.keys(activeUserHashes).length;
 
-                {/* FEEDBACK SECTION */}
-                {activeTab === 'feedback' && (
-                    <div id="feedback">
-                        <div className="sec-title">User Feedback</div>
-                        <div className="feedback-list">
-                            <div className="fb-item">
-                                <div className="fb-avatar">AK</div>
-                                <div>
-                                    <div className="stars">★★★★★</div>
-                                    <p>"The AI tutor is incredible. It explained neural networks in a way no book ever could!"</p>
-                                    <div className="fb-meta">Aditya Kumar · Student · Machine Learning Course</div>
-                                </div>
-                            </div>
-                            <div className="fb-item">
-                                <div className="fb-avatar">PS</div>
-                                <div>
-                                    <div className="stars">★★★★☆</div>
-                                    <p>"The adaptive quiz feature is genuinely smart — it noticed my weakness and adjusted. Impressive."</p>
-                                    <div className="fb-meta">Priya Sharma · Teacher · Web Development Course</div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                )}
+      // Map fake 'User' table elements for the demo mapping activeUserHashes
+      const allUsers = Object.keys(activeUserHashes).map((uid, idx) => ({
+        id: uid,
+        name: `Scholar ${uid.substring(0, 5)}`,
+        coursesCount: activeUserHashes[uid],
+        role: idx === 0 ? "Admin" : "Student",
+        status: "Active",
+      }));
+
+      setStats({
+        totalCourses,
+        totalUsers,
+        recentCourses,
+        allUsers,
+      });
+      setLoading(false);
+    };
+
+    fetchAdminData();
+  }, [navigate]);
+
+  return (
+    <Layout activePage="admin">
+      <div className="admin-page">
+        {/* TOP BAR */}
+
+        {/* STATS WIDGETS */}
+        <div className="stats-row">
+          <div className="stat-card">
+            <div className="sc-label">Total Unique Users</div>
+            <div className="sc-val" style={{ color: "var(--p1)" }}>
+              {loading ? "..." : stats.totalUsers}
             </div>
-        </Layout>
-    );
+            <div className="sc-trend up">Live Active Scholars</div>
+          </div>
+          <div className="stat-card">
+            <div className="sc-label">Content Curriculums</div>
+            <div className="sc-val" style={{ color: "var(--p2)" }}>
+              {loading ? "..." : stats.totalCourses}
+            </div>
+            <div className="sc-trend up">Generated by AI</div>
+          </div>
+        </div>
+
+        {/* TAB SWITCHER */}
+        <div className="tab-control">
+          <div
+            className={`tab ${activeTab === "users" ? "active" : ""}`}
+            onClick={() => setActiveTab("users")}
+          >
+            👥 Users
+          </div>
+          <div
+            className={`tab ${activeTab === "content" ? "active" : ""}`}
+            onClick={() => setActiveTab("content")}
+          >
+            📁 Content Firehose
+          </div>
+        </div>
+
+        {/* DYNAMIC CONTENT VIEWS */}
+        {activeTab === "users" && (
+          <div className="admin-section fade-in">
+            <div className="sec-title">Global User Roster</div>
+            <div className="table-box">
+              <table>
+                <thead>
+                  <tr>
+                    <th>UserID</th>
+                    <th>Role</th>
+                    <th>Lifelong Courses</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {stats.allUsers.map((u, i) => (
+                    <tr key={i}>
+                      <td>
+                        <strong>{u.name}</strong>
+                        <br />
+                        <span
+                          style={{ color: "var(--muted)", fontSize: "0.8em" }}
+                        >
+                          {u.id}
+                        </span>
+                      </td>
+                      <td>
+                        <span
+                          className={`badge ${u.role === "Admin" ? "b-admin" : "b-student"}`}
+                        >
+                          {u.role}
+                        </span>
+                      </td>
+                      <td>{u.coursesCount} generated</td>
+                      <td>
+                        <span className="badge b-active">{u.status}</span>
+                      </td>
+                      <td>
+                        <button className="action-btn">Inspect</button>
+                        {u.role !== "Admin" && (
+                          <button className="action-btn danger">Ban</button>
+                        )}
+                      </td>
+                    </tr>
+                  ))}
+                  {stats.allUsers.length === 0 && !loading && (
+                    <tr>
+                      <td
+                        colSpan="5"
+                        style={{ textAlign: "center", padding: "20px" }}
+                      >
+                        No users detected in Database.
+                      </td>
+                    </tr>
+                  )}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        )}
+
+        {activeTab === "content" && (
+          <div className="admin-section fade-in">
+            <div className="sec-title">Recent Generations</div>
+            <div className="table-box">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Course Core Topic</th>
+                    <th>Level Assigned</th>
+                    <th>Modules Built</th>
+                    <th>Owner ID</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {stats.recentCourses.map((c, i) => (
+                    <tr key={i}>
+                      <td>
+                        <strong>{c.topic}</strong>
+                      </td>
+                      <td>{c.level || "Beginner"}</td>
+                      <td>{c.content?.modules?.length || 0}</td>
+                      <td>
+                        <span
+                          style={{ color: "var(--muted)", fontSize: "0.85em" }}
+                        >
+                          {c.user_id?.substring(0, 8)}...
+                        </span>
+                      </td>
+                      <td>
+                        <button
+                          className="action-btn"
+                          onClick={() => navigate(`/course/${c.id}`)}
+                        >
+                          Open
+                        </button>
+                        <button className="action-btn danger">Prune</button>
+                      </td>
+                    </tr>
+                  ))}
+                  {stats.recentCourses.length === 0 && !loading && (
+                    <tr>
+                      <td
+                        colSpan="5"
+                        style={{ textAlign: "center", padding: "20px" }}
+                      >
+                        No content generated recently.
+                      </td>
+                    </tr>
+                  )}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        )}
+      </div>
+    </Layout>
+  );
 };
 
 export default Admin;

@@ -54,7 +54,7 @@ const Test = () => {
             }
         } catch (err) {
             console.error(err);
-            alert("Failed to generate test. Make sure your GEMINI_API_KEY is active and valid.");
+            alert("Failed to generate test. Make sure your AI API Key is active and valid.");
             setTestState('selection');
         }
     };
@@ -203,7 +203,7 @@ const Test = () => {
                         <div className="loading-state">
                             <div className="loader-spinner"></div>
                             <h2>Generating Comprehensive Test...</h2>
-                            <p>Gemini AI is analyzing your specific course curriculum to build a rigorous 20-question evaluation.</p>
+                            <p>Our Advanced AI is analyzing your specific course curriculum to build a rigorous 20-question evaluation.</p>
                         </div>
                     )}
 

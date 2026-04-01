@@ -6,6 +6,7 @@ import Generate from './pages/Generate';
 import CourseView from './pages/CourseView';
 import MyCourses from './pages/MyCourses';
 import Test from './pages/Test';
+import Admin from './pages/Admin';
 
 function App() {
   return (
@@ -18,6 +19,7 @@ function App() {
         <Route path="/course" element={<MyCourses />} />
         <Route path="/course/:id" element={<CourseView />} />
         <Route path="/test" element={<Test />} />
+        <Route path="/admin" element={<Admin />} />
       </Routes>
     </BrowserRouter>
   )
