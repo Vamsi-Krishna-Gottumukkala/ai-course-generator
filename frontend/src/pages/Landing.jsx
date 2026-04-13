@@ -133,9 +133,9 @@ const Landing = () => {
                 <div className="logo-f">AI CourseGen</div>
                 <div>© 2025 AI Course Generator. All rights reserved.</div>
                 <div style={{ display: 'flex', gap: '24px' }}>
-                    <a href="#" style={{ color: 'rgba(255,255,255,.5)', transition: '.2s' }}>Terms</a>
-                    <a href="#" style={{ color: 'rgba(255,255,255,.5)', transition: '.2s' }}>Privacy</a>
-                    <a href="#" style={{ color: 'rgba(255,255,255,.5)', transition: '.2s' }}>Contact</a>
+                    <a href="#" style={{ color: 'var(--muted)', transition: '.2s' }}>Terms</a>
+                    <a href="#" style={{ color: 'var(--muted)', transition: '.2s' }}>Privacy</a>
+                    <a href="#" style={{ color: 'var(--muted)', transition: '.2s' }}>Contact</a>
                 </div>
             </footer>
         </div>

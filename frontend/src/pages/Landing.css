@@ -5,13 +5,13 @@
     --p2: #7C3AED;
     --c1: #06B6D4;
     --c2: #0EA5E9;
-    --bg: #0F172A;
-    --white: #1E293B;
-    --text: #F8FAFC;
-    --muted: #94A3B8;
-    --border: #334155;
+    --bg: #f8fafc;
+    --white: #ffffff;
+    --text: #0f172a;
+    --muted: #64748b;
+    --border: #e2e8f0;
     --r: 14px;
-    --shadow: 0 4px 24px rgba(0, 0, 0, .3);
+    --shadow: 0 4px 24px rgba(0, 0, 0, .05);
 
     font-family: 'Inter', sans-serif;
     background: var(--bg);
@@ -113,7 +113,7 @@
     justify-content: center;
     text-align: center;
     padding: 120px 60px 60px;
-    background: radial-gradient(circle at 50% 10%, #1E293B 0%, var(--bg) 60%);
+    background: radial-gradient(circle at 50% 10%, #ffffff 0%, var(--bg) 60%);
     position: relative;
     overflow: hidden;
 }
@@ -423,8 +423,8 @@
 
 /* ── FOOTER ── */
 .landing-page footer {
-    background: #1E293B;
-    color: rgba(255, 255, 255, .6);
+    background: var(--white);
+    color: var(--muted);
     padding: 40px 60px;
     display: flex;
     justify-content: space-between;

@@ -1,11 +1,11 @@
 .login-page {
     --p1: #4F46E5;
     --p2: #7C3AED;
-    --bg: #0F172A;
-    --card: rgba(255, 255, 255, 0.05);
-    --border: rgba(255, 255, 255, 0.1);
-    --text: #fff;
-    --muted: rgba(255, 255, 255, 0.55);
+    --bg: #f8fafc;
+    --card: #ffffff;
+    --border: #e2e8f0;
+    --text: #0f172a;
+    --muted: #64748b;
 
     font-family: 'Inter', sans-serif;
     background: var(--bg);
@@ -80,7 +80,7 @@
     position: relative;
     z-index: 10;
     width: 330px;
-    background: rgba(15, 23, 42, 0.9);
+    background: rgba(255, 255, 255, 0.9);
     border: 1px solid var(--border);
     border-radius: 18px;
     padding: 36px 32px;
@@ -100,7 +100,7 @@
 /* TABS */
 .login-page .tabs {
     display: flex;
-    background: rgba(255, 255, 255, .06);
+    background: rgba(0, 0, 0, .06);
     border-radius: 10px;
     padding: 4px;
     margin-bottom: 28px;
@@ -170,10 +170,10 @@
 .login-page .field input {
     width: 100%;
     padding: 11px 14px;
-    background: rgba(255, 255, 255, .06);
+    background: rgba(0, 0, 0, .06);
     border: 1.5px solid var(--border);
     border-radius: 9px;
-    color: #fff;
+    color: var(--text);
     font-family: 'Inter', sans-serif;
     font-size: .9em;
     outline: none;
@@ -186,7 +186,7 @@
 }
 
 .login-page .field input::placeholder {
-    color: rgba(255, 255, 255, .3);
+    color: var(--muted);
 }
 
 /* DIVIDER */
@@ -211,10 +211,10 @@
 .login-page .btn-google {
     width: 100%;
     padding: 11px;
-    background: rgba(255, 255, 255, .07);
+    background: #ffffff;
     border: 1.5px solid var(--border);
     border-radius: 9px;
-    color: #fff;
+    color: var(--text);
     font-family: 'Inter', sans-serif;
     font-size: .88em;
     font-weight: 600;
@@ -228,7 +228,7 @@
 }
 
 .login-page .btn-google:hover {
-    background: rgba(255, 255, 255, .12);
+    background: rgba(0, 0, 0, .06);
 }
 
 /* SUBMIT */

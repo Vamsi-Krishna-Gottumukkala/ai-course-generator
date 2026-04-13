@@ -16,7 +16,7 @@
 }
 
 .course-view-page .video-wrap {
-    background: #0F172A;
+    background: #000000;
     position: relative;
     overflow: hidden;
 }
@@ -119,7 +119,7 @@
 
 .generated-lesson-content strong,
 .generated-lesson-content b {
-    color: #fff;
+    color: var(--text);
     font-weight: 700;
 }
 

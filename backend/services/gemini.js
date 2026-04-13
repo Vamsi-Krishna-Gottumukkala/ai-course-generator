@@ -84,7 +84,12 @@ Output strictly valid JSON with the following structure:
     });
 
     try {
-        let cleaned = response.text.replace(/```json/gi, "").replace(/```/g, "").trim();
+        let cleaned = response.text;
+        const start = cleaned.indexOf('{');
+        const end = cleaned.lastIndexOf('}');
+        if (start !== -1 && end !== -1) {
+            cleaned = cleaned.substring(start, end + 1);
+        }
         return JSON.parse(cleaned);
     } catch (e) {
         console.error("Failed to parse JSON", response.text);
@@ -130,7 +135,12 @@ Output strictly valid JSON matching this schema:
     });
 
     try {
-        let cleaned = response.text.replace(/```json/gi, "").replace(/```/g, "").trim();
+        let cleaned = response.text;
+        const start = cleaned.indexOf('{');
+        const end = cleaned.lastIndexOf('}');
+        if (start !== -1 && end !== -1) {
+            cleaned = cleaned.substring(start, end + 1);
+        }
         return JSON.parse(cleaned);
     } catch (e) {
         console.error("Failed to parse Quiz JSON", response.text);
@@ -179,7 +189,12 @@ Output strictly valid JSON matching this exact schema for exactly 20 questions:
     });
 
     try {
-        let cleaned = response.text.replace(/```json/gi, "").replace(/```/g, "").trim();
+        let cleaned = response.text;
+        const start = cleaned.indexOf('{');
+        const end = cleaned.lastIndexOf('}');
+        if (start !== -1 && end !== -1) {
+            cleaned = cleaned.substring(start, end + 1);
+        }
         return JSON.parse(cleaned);
     } catch (e) {
         console.error("Failed to parse Test JSON", response.text);

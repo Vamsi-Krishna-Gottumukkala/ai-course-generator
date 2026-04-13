@@ -85,7 +85,7 @@
 
 .tab-control .tab:hover {
     color: var(--text);
-    background: rgba(255, 255, 255, 0.05); /* Slight highlight */
+    background: rgba(0, 0, 0, 0.05); /* Slight highlight */
 }
 
 .tab-control .tab.active {
@@ -132,7 +132,7 @@
     text-transform: uppercase;
     letter-spacing: 0.5px;
     border-bottom: 1px solid var(--border);
-    background: rgba(255, 255, 255, 0.02); /* Slight contrast from rows */
+    background: rgba(0, 0, 0, 0.02); /* Slight contrast from rows */
 }
 
 .table-box td {
@@ -147,7 +147,7 @@
 }
 
 .table-box tr:hover td {
-    background: rgba(255, 255, 255, 0.02);
+    background: rgba(0, 0, 0, 0.02);
 }
 
 /* BADGES */

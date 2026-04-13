@@ -1,11 +1,11 @@
 @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Poppins:wght@300;400;600&display=swap');
 
 :root {
-    --bg-color: #1f293a;
-    --accent-color: #0ef;
-    --text-color: #fff;
-    --input-bg: rgba(255, 255, 255, 0.05);
-    --glow-shadow: 0 0 10px var(--accent-color), 0 0 20px var(--accent-color);
+    --bg-color: #f8fafc;
+    --accent-color: #3b82f6;
+    --text-color: #0f172a;
+    --input-bg: #ffffff;
+    --glow-shadow: 0 4px 15px rgba(59, 130, 246, 0.2);
     --font-main: 'Poppins', sans-serif;
     --font-heading: 'Orbitron', sans-serif;
 }
@@ -25,10 +25,10 @@ body {
 
 /* Cyberpunk Glassmorphism Effect */
 .glass {
-    background: rgba(255, 255, 255, 0.05);
+    background: rgba(255, 255, 255, 0.7);
     backdrop-filter: blur(10px);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.05);
 }
 
 /* Neon Text Glow */
