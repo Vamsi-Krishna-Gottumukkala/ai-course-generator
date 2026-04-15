@@ -14,6 +14,90 @@ const getAI = () => {
     return ai;
 };
 
+/**
+ * Model waterfall with smart error classification.
+ *
+ * Error handling strategy:
+ *  - 503 SERVICE_UNAVAILABLE   → model overloaded, retry same model with longer wait, then switch
+ *  - 429 RESOURCE_EXHAUSTED    → daily/minute quota gone; skip to next model immediately (no retry)
+ *  - 429 RATE_LIMITED (non-zero limit) → requests/min exceeded; brief wait then switch
+ *  - 404 NOT_FOUND             → model not available in this API version; skip immediately
+ *  - anything else             → real error, propagate immediately
+ *
+ * Models confirmed available for this API version (from ListModels):
+ */
+const MODELS = [
+    'gemini-2.5-flash',      // primary: latest, most capable
+    'gemini-2.5-flash-lite', // fallback 1: lighter 2.5 variant
+    'gemini-3-flash-preview', // fallback 2: next-gen flash
+];
+
+/** Returns true when the 429 is a hard quota exhaustion (daily limit = 0, no point retrying) */
+const isQuotaExhausted = (err) => {
+    try {
+        const body = typeof err.message === 'string' ? JSON.parse(err.message) : err;
+        const status = body?.error?.status;
+        if (status === 'RESOURCE_EXHAUSTED') {
+            // "limit: 0" in the message signals daily quota is fully gone
+            return body?.error?.message?.includes('limit: 0') ?? false;
+        }
+    } catch (_) {}
+    return false;
+};
+
+const withModelFallback = async (fn, label = 'Gemini') => {
+    let lastErr;
+
+    for (let mi = 0; mi < MODELS.length; mi++) {
+        const model = MODELS[mi];
+        // 503: retry same model up to 3 times with longer waits (server just busy)
+        // 429/404: at most 1 attempt before switching to next model
+        const maxAttempts = 3;
+
+        for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+            try {
+                if (mi > 0 || attempt > 1) {
+                    console.warn(`[${label}] Trying model: ${model} (attempt ${attempt})`);
+                }
+                return await fn(model);
+            } catch (err) {
+                const status = err?.status ?? err?.error?.code;
+                lastErr = err;
+
+                // ── Non-retryable errors ──────────────────────────────────────────────
+                if (![429, 503, 404].includes(status)) {
+                    throw err; // auth failure, bad request, etc. — no point retrying
+                }
+
+                // ── Model not in this API version (404) ──────────────────────────────
+                if (status === 404) {
+                    console.warn(`[${label}] ${model} not available (404). Switching model...`);
+                    break; // skip to next model immediately
+                }
+
+                // ── Daily quota fully exhausted (429 RESOURCE_EXHAUSTED, limit 0) ────
+                if (isQuotaExhausted(err)) {
+                    console.warn(`[${label}] ${model} daily quota exhausted. Switching model...`);
+                    break; // no point retrying — quota won't restore until tomorrow
+                }
+
+                // ── Overloaded (503) or minute-rate-limit (429) ──────────────────────
+                if (attempt < maxAttempts) {
+                    // Exponential back-off: 3s → 6s → 12s (gives overloaded server time to recover)
+                    const waitMs = 3000 * Math.pow(2, attempt - 1);
+                    console.warn(`[${label}] ${model} returned ${status}. Retrying in ${waitMs / 1000}s...`);
+                    await new Promise(r => setTimeout(r, waitMs));
+                } else {
+                    console.warn(`[${label}] ${model} still unavailable after ${maxAttempts} attempts. Switching model...`);
+                }
+            }
+        }
+    }
+
+    console.error(`[${label}] All models exhausted.`);
+    throw lastErr;
+};
+
 export const generateCourse = async (topic, level, goals, duration, mode) => {
     let ragContext = "";
     try {
@@ -45,7 +129,7 @@ export const generateCourse = async (topic, level, goals, duration, mode) => {
     if (mode === "Video") {
         instruction = `CRITICAL INSTRUCTION: This is a strictly Video-focused course. You MUST generate the JSON outline with modules and lesson titles accurately, but you MUST leave \`text_content\` completely BLANK as an empty string ("") for ALL lessons. Saving tokens is priority. Do NOT generate text descriptions.`;
     } else if (mode === "Fast Track") {
-        instruction = `CRITICAL INSTRUCTION: You MUST write extensive, descriptive text for each lesson inside \`text_content\`. Treat each lesson as a full textbook chapter. Provide a minimum of 400 words per lesson in straight paragraph formats. Do NOT just give short summaries or use extensive listicles. Use rich HTML formatting (<h2>, <p>, <strong>) for readability. Ensure paragraphs flow naturally to explain real-world examples and context.`;
+        instruction = `CRITICAL INSTRUCTION: You MUST write detailed, informative text for each lesson inside \`text_content\`. Treat each lesson as a concise textbook section (approximately 250 words per lesson). Use rich HTML formatting (<h2>, <p>, <strong>) for readability. Ensure paragraphs flow naturally with real-world examples. Do NOT use excessively long bullet lists.`;
     } else {
         instruction = `CRITICAL INSTRUCTION: You MUST structure the \`text_content\` for each lesson as highly scannable study notes. Avoid long walls of paragraph text. Instead:\n- Use extensive bullet points, numbered lists, and short punchy sentences.\n- Use bold text for key terms and abbreviations where possible to speed up reading.\n- Break down concepts step-by-step with clear <h3> or <h4> subheadings.\n- Use rich HTML formatting (<ul>, <li>, <strong>, <code> blocks).\nThe student needs efficient, well-structured list-based notes to review the concepts securely.`;
     }
@@ -75,13 +159,26 @@ Output strictly valid JSON with the following structure:
       ]
     }
   ]
-}`;
+}
 
-    const response = await aiClient.models.generateContent({
-        model: 'gemini-2.5-flash',
-        contents: prompt,
-        config: { responseMimeType: "application/json" }
-    });
+JSON SAFETY RULES (MUST FOLLOW):
+- All string values MUST use only double-quoted JSON strings.
+- NEVER include raw/unescaped double-quote characters (\`) inside any string value. Use HTML entities like &quot; if needed.
+- Do NOT add trailing commas after the last item in any array or object.
+- Do NOT truncate the JSON — always close every bracket and brace fully.
+- Keep each lesson's text_content concise enough to ensure the full JSON response fits within the output limit.`;
+
+    const response = await withModelFallback(
+        (model) => aiClient.models.generateContent({
+            model,
+            contents: prompt,
+            config: {
+                responseMimeType: "application/json",
+                maxOutputTokens: 65536
+            }
+        }),
+        'generateCourse'
+    );
 
     try {
         let cleaned = response.text;
@@ -90,9 +187,15 @@ Output strictly valid JSON with the following structure:
         if (start !== -1 && end !== -1) {
             cleaned = cleaned.substring(start, end + 1);
         }
+        // Fix LLM JSON issues: Replace raw control characters (like newlines inside strings) with space
+        cleaned = cleaned.replace(/[\n\r\t]/g, ' ');
+        // Strip trailing commas before closing brackets
+        cleaned = cleaned.replace(/,(\s*[\]}])/g, '$1');
         return JSON.parse(cleaned);
     } catch (e) {
-        console.error("Failed to parse JSON", response.text);
+        const preview = response.text?.slice(-500) || '';
+        console.error(`[generateCourse] JSON parse failed. Last 500 chars of response:\n${preview}`);
+        console.error(`Parse error: ${e.message}`);
         throw new Error("Invalid output format from AI. Expected JSON.");
     }
 };
@@ -128,11 +231,17 @@ Output strictly valid JSON matching this schema:
   ]
 }`;
 
-    const response = await aiClient.models.generateContent({
-        model: 'gemini-2.5-flash',
-        contents: prompt,
-        config: { responseMimeType: "application/json" }
-    });
+    const response = await withModelFallback(
+        (model) => aiClient.models.generateContent({
+            model,
+            contents: prompt,
+            config: {
+                responseMimeType: "application/json",
+                maxOutputTokens: 8192
+            }
+        }),
+        'generateQuiz'
+    );
 
     try {
         let cleaned = response.text;
@@ -141,6 +250,8 @@ Output strictly valid JSON matching this schema:
         if (start !== -1 && end !== -1) {
             cleaned = cleaned.substring(start, end + 1);
         }
+        cleaned = cleaned.replace(/[\n\r\t]/g, ' ');
+        cleaned = cleaned.replace(/,(\s*[\]}])/g, '$1');
         return JSON.parse(cleaned);
     } catch (e) {
         console.error("Failed to parse Quiz JSON", response.text);
@@ -182,11 +293,17 @@ Output strictly valid JSON matching this exact schema for exactly 20 questions:
   ]
 }`;
 
-    const response = await aiClient.models.generateContent({
-        model: 'gemini-2.5-flash',
-        contents: prompt,
-        config: { responseMimeType: "application/json" }
-    });
+    const response = await withModelFallback(
+        (model) => aiClient.models.generateContent({
+            model,
+            contents: prompt,
+            config: {
+                responseMimeType: "application/json",
+                maxOutputTokens: 16384
+            }
+        }),
+        'generateTest'
+    );
 
     try {
         let cleaned = response.text;
@@ -195,6 +312,8 @@ Output strictly valid JSON matching this exact schema for exactly 20 questions:
         if (start !== -1 && end !== -1) {
             cleaned = cleaned.substring(start, end + 1);
         }
+        cleaned = cleaned.replace(/[\n\r\t]/g, ' ');
+        cleaned = cleaned.replace(/,(\s*[\]}])/g, '$1');
         return JSON.parse(cleaned);
     } catch (e) {
         console.error("Failed to parse Test JSON", response.text);
@@ -214,10 +333,13 @@ Student asks: ${message}
 
 Provide a concise, helpful, and easily digestible response.`;
 
-    const response = await aiClient.models.generateContent({
-        model: 'gemini-2.5-flash',
-        contents: prompt
-    });
+    const response = await withModelFallback(
+        (model) => aiClient.models.generateContent({
+            model,
+            contents: prompt
+        }),
+        'generateChatReply'
+    );
 
     return response.text;
 };
