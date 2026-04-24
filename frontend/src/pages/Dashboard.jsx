@@ -8,6 +8,7 @@ const Dashboard = () => {
     const navigate = useNavigate();
     const [courses, setCourses] = useState([]);
     const [loading, setLoading] = useState(true);
+    const [userName, setUserName] = useState('Student');
 
     useEffect(() => {
         const fetchCourses = async () => {
@@ -15,6 +16,11 @@ const Dashboard = () => {
             if (!session) {
                 navigate('/login');
                 return;
+            }
+            if (session.user.user_metadata?.fullName) {
+                setUserName(session.user.user_metadata.fullName);
+            } else if (session.user.email) {
+                setUserName(session.user.email.split('@')[0]);
             }
             const { data, error } = await supabase
                 .from('courses')
@@ -118,12 +124,12 @@ const Dashboard = () => {
                 {/* TOP */}
                 <div className="top-bar">
                     <div>
-                        <h1>Welcome back, Student 👋</h1>
+                        <h1>Welcome back, {userName} 👋</h1>
                         <p>Here's your learning summary for this week</p>
                     </div>
                     <div className="user-chip">
-                        <div className="avatar">S</div>
-                        <span>Student</span>
+                        <div className="avatar">{userName.charAt(0).toUpperCase()}</div>
+                        <span>{userName}</span>
                     </div>
                 </div>
 

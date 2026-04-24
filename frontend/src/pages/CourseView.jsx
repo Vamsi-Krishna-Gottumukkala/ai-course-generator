@@ -285,7 +285,7 @@ const CourseView = () => {
                                                 <button
                                                     className="btn-toggle-video"
                                                     onClick={() => setIsVideoVisible(!isVideoVisible)}
-                                                    style={{ background: 'var(--bg)', color: 'var(--p1)', border: '1px solid var(--border)', padding: '6px 14px', borderRadius: '8px', cursor: 'pointer', fontWeight: '600', fontSize: '0.85em', display: 'flex', alignItems: 'center', gap: '6px', transition: '0.2s' }}
+                                                    style={{ background: 'var(--p1)', color: '#fff', border: 'none', padding: '8px 16px', borderRadius: '8px', cursor: 'pointer', fontWeight: '600', fontSize: '0.88em', display: 'flex', alignItems: 'center', gap: '6px', transition: '0.2s', boxShadow: '0 4px 12px rgba(79, 70, 229, 0.2)' }}
                                                 >
                                                     {isVideoVisible ? 'Hide Video' : '🎥 Watch Lesson Video'}
                                                 </button>
