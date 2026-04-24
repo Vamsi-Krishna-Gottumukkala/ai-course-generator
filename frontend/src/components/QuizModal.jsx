@@ -72,7 +72,8 @@ const QuizModal = ({ isVisible, onClose, lessonContent }) => {
                                     className={`q-opt ${getOptClass(qIdx, optIdx, q.correctAnswerIndex)}`} 
                                     onClick={() => handleSelect(qIdx, optIdx)}
                                 >
-                                    {opt} {isSubmitted && optIdx === q.correctAnswerIndex && '✓'}
+                                    {opt} {isSubmitted && optIdx === q.correctAnswerIndex && '✅'}
+                                    {isSubmitted && selectedAnswers[qIdx] === optIdx && selectedAnswers[qIdx] !== q.correctAnswerIndex && ' ❌'}
                                 </div>
                             ))}
                         </div>

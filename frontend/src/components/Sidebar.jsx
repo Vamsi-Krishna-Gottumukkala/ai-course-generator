@@ -1,13 +1,15 @@
 import React from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { supabase } from '../services/supabase';
 import './Sidebar.css';
 
 const Sidebar = ({ activePage }) => {
     const navigate = useNavigate();
 
-    const handleLogout = (e) => {
+    const handleLogout = async (e) => {
         e.preventDefault();
         localStorage.removeItem('isAdmin');
+        await supabase.auth.signOut();
         navigate('/login');
     };
 

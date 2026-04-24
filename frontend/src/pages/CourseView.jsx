@@ -251,9 +251,9 @@ const CourseView = () => {
                                     <div className="test-intro-card">
                                         <div className="ti-icon">🎯</div>
                                         <h2>Final Course Assessment</h2>
-                                        <p>You've completed all lessons in <strong>{course.title}</strong>. This 20-question test evaluates your full understanding of the curriculum.</p>
+                                        <p>You've completed all lessons in <strong>{course.title}</strong>. This 15-question test evaluates your full understanding of the curriculum.</p>
                                         <ul>
-                                            <li>📋 20 multiple-choice questions</li>
+                                            <li>📋 15 multiple-choice questions</li>
                                             <li>✅ Pass threshold: <strong>75%</strong></li>
                                             <li>🚀 Pass → Course levels up to the next tier</li>
                                             <li>🔁 Fail → AI rebuilds course targeting your weak spots</li>
@@ -345,7 +345,7 @@ const CourseView = () => {
                             <div className="test-loading">
                                 <div className="test-spinner"></div>
                                 <h2>Generating Assessment...</h2>
-                                <p>Our Advanced AI is analyzing your full course curriculum to build 20 rigorous evaluation questions.</p>
+                                <p>Our Advanced AI is analyzing your full course curriculum to build 15 rigorous evaluation questions.</p>
                             </div>
                         </div>
                     )}
@@ -398,6 +398,40 @@ const CourseView = () => {
                                 <div className="tr-score">{testResult.percentage}%</div>
                                 <h2>{testResult.passed ? '🎉 Assessment Passed!' : 'Needs Improvement'}</h2>
                                 <p>{testResult.score} out of {questions.length} correct</p>
+                            </div>
+
+                            <div className="test-review" style={{ width: '100%', maxWidth: '800px', marginTop: '30px' }}>
+                                <h3 style={{ marginBottom: '20px', textAlign: 'center', fontSize: '1.2em' }}>Detailed Review</h3>
+                                {questions.map((q, qIndex) => {
+                                    const userAns = answers[qIndex];
+                                    const isCorrect = userAns === q.correctAnswerIndex;
+                                    return (
+                                        <div key={qIndex} className="inline-question" style={{ borderColor: isCorrect ? '#22c55e' : '#ef4444' }}>
+                                            <h4><span className="q-num">{qIndex + 1}.</span> {q.question}</h4>
+                                            <div className="inline-options">
+                                                {q.options.map((opt, optIndex) => {
+                                                    let bg = 'var(--bg)';
+                                                    let border = 'var(--border)';
+                                                    let icon = '';
+                                                    if (optIndex === q.correctAnswerIndex) {
+                                                        bg = '#f0fdf4'; border = '#22c55e'; icon = '✅';
+                                                    } else if (userAns === optIndex && !isCorrect) {
+                                                        bg = '#fef2f2'; border = '#ef4444'; icon = '❌';
+                                                    }
+                                                    return (
+                                                        <div key={optIndex} className="inline-option" style={{ background: bg, borderColor: border, cursor: 'default' }}>
+                                                            <span className="opt-letter">{['A', 'B', 'C', 'D'][optIndex]}</span>
+                                                            <span>{opt} {icon}</span>
+                                                        </div>
+                                                    )
+                                                })}
+                                            </div>
+                                            <div style={{ marginTop: '14px', padding: '12px', background: 'rgba(79,70,229,.1)', borderRadius: '8px', fontSize: '0.88em', color: 'var(--text)' }}>
+                                                <strong>Explanation:</strong> {q.explanation}
+                                            </div>
+                                        </div>
+                                    );
+                                })}
                             </div>
                             <div className="adapt-card">
                                 {testResult.passed ? (

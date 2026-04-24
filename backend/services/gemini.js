@@ -62,10 +62,13 @@ const withModelFallback = async (fn, label = 'Gemini') => {
                 return await fn(model);
             } catch (err) {
                 const status = err?.status ?? err?.error?.code;
+                const code = err?.cause?.code || err?.code;
                 lastErr = err;
 
+                const isTimeout = code === 'UND_ERR_HEADERS_TIMEOUT' || code === 'UND_ERR_CONNECT_TIMEOUT' || err.message?.includes('fetch failed');
+
                 // ── Non-retryable errors ──────────────────────────────────────────────
-                if (![429, 503, 404].includes(status)) {
+                if (![429, 503, 404].includes(status) && !isTimeout) {
                     throw err; // auth failure, bad request, etc. — no point retrying
                 }
 
@@ -81,11 +84,11 @@ const withModelFallback = async (fn, label = 'Gemini') => {
                     break; // no point retrying — quota won't restore until tomorrow
                 }
 
-                // ── Overloaded (503) or minute-rate-limit (429) ──────────────────────
+                // ── Overloaded (503) or minute-rate-limit (429) or Timeout ──────────
                 if (attempt < maxAttempts) {
                     // Exponential back-off: 3s → 6s → 12s (gives overloaded server time to recover)
                     const waitMs = 3000 * Math.pow(2, attempt - 1);
-                    console.warn(`[${label}] ${model} returned ${status}. Retrying in ${waitMs / 1000}s...`);
+                    console.warn(`[${label}] ${model} returned ${status || 'TIMEOUT'}. Retrying in ${waitMs / 1000}s...`);
                     await new Promise(r => setTimeout(r, waitMs));
                 } else {
                     console.warn(`[${label}] ${model} still unavailable after ${maxAttempts} attempts. Switching model...`);
@@ -168,12 +171,42 @@ JSON SAFETY RULES (MUST FOLLOW):
 - Do NOT truncate the JSON — always close every bracket and brace fully.
 - Keep each lesson's text_content concise enough to ensure the full JSON response fits within the output limit.`;
 
+    const courseSchema = {
+        type: "OBJECT",
+        properties: {
+            title: { type: "STRING" },
+            modules: {
+                type: "ARRAY",
+                items: {
+                    type: "OBJECT",
+                    properties: {
+                        title: { type: "STRING" },
+                        lessons: {
+                            type: "ARRAY",
+                            items: {
+                                type: "OBJECT",
+                                properties: {
+                                    title: { type: "STRING" },
+                                    text_content: { type: "STRING" }
+                                },
+                                required: ["title", "text_content"]
+                            }
+                        }
+                    },
+                    required: ["title", "lessons"]
+                }
+            }
+        },
+        required: ["title", "modules"]
+    };
+
     const response = await withModelFallback(
         (model) => aiClient.models.generateContent({
             model,
             contents: prompt,
             config: {
                 responseMimeType: "application/json",
+                responseSchema: courseSchema,
                 maxOutputTokens: 65536
             }
         }),
@@ -182,15 +215,12 @@ JSON SAFETY RULES (MUST FOLLOW):
 
     try {
         let cleaned = response.text;
+        // responseSchema guarantees valid JSON, but we safely substring just in case
         const start = cleaned.indexOf('{');
         const end = cleaned.lastIndexOf('}');
         if (start !== -1 && end !== -1) {
             cleaned = cleaned.substring(start, end + 1);
         }
-        // Fix LLM JSON issues: Replace raw control characters (like newlines inside strings) with space
-        cleaned = cleaned.replace(/[\n\r\t]/g, ' ');
-        // Strip trailing commas before closing brackets
-        cleaned = cleaned.replace(/,(\s*[\]}])/g, '$1');
         return JSON.parse(cleaned);
     } catch (e) {
         const preview = response.text?.slice(-500) || '';
@@ -231,12 +261,33 @@ Output strictly valid JSON matching this schema:
   ]
 }`;
 
+    const quizSchema = {
+        type: "OBJECT",
+        properties: {
+            questions: {
+                type: "ARRAY",
+                items: {
+                    type: "OBJECT",
+                    properties: {
+                        question: { type: "STRING" },
+                        options: { type: "ARRAY", items: { type: "STRING" } },
+                        correctAnswerIndex: { type: "INTEGER" },
+                        explanation: { type: "STRING" }
+                    },
+                    required: ["question", "options", "correctAnswerIndex", "explanation"]
+                }
+            }
+        },
+        required: ["questions"]
+    };
+
     const response = await withModelFallback(
         (model) => aiClient.models.generateContent({
             model,
             contents: prompt,
             config: {
                 responseMimeType: "application/json",
+                responseSchema: quizSchema,
                 maxOutputTokens: 8192
             }
         }),
@@ -250,8 +301,6 @@ Output strictly valid JSON matching this schema:
         if (start !== -1 && end !== -1) {
             cleaned = cleaned.substring(start, end + 1);
         }
-        cleaned = cleaned.replace(/[\n\r\t]/g, ' ');
-        cleaned = cleaned.replace(/,(\s*[\]}])/g, '$1');
         return JSON.parse(cleaned);
     } catch (e) {
         console.error("Failed to parse Quiz JSON", response.text);
@@ -264,7 +313,7 @@ export const generateTest = async (topic, courseContent) => {
     if (!aiClient) {
         // Mock fallback
         return {
-            questions: Array(20).fill(null).map((_, i) => ({
+            questions: Array(15).fill(null).map((_, i) => ({
                 question: `Mock Question ${i + 1} about ${topic}?`,
                 options: ["Option A", "Option B", "Option C", "Option D"],
                 correctAnswerIndex: 0,
@@ -274,13 +323,13 @@ export const generateTest = async (topic, courseContent) => {
         };
     }
 
-    const prompt = `Generate a rigorous 20-question multiple choice test based on the actual concepts taught in this course content:
+    const prompt = `Generate a rigorous 15-question multiple choice test based on the actual concepts taught in this course content:
 Topic: ${topic}
 Content Details: "${courseContent}"
 
 This test will evaluate the student's mastery of the entire syllabus. 
 
-Output strictly valid JSON matching this exact schema for exactly 20 questions:
+Output strictly valid JSON matching this exact schema for exactly 15 questions:
 {
   "questions": [
     {
@@ -293,12 +342,34 @@ Output strictly valid JSON matching this exact schema for exactly 20 questions:
   ]
 }`;
 
+    const testSchema = {
+        type: "OBJECT",
+        properties: {
+            questions: {
+                type: "ARRAY",
+                items: {
+                    type: "OBJECT",
+                    properties: {
+                        question: { type: "STRING" },
+                        options: { type: "ARRAY", items: { type: "STRING" } },
+                        correctAnswerIndex: { type: "INTEGER" },
+                        topicEmphasis: { type: "STRING" },
+                        explanation: { type: "STRING" }
+                    },
+                    required: ["question", "options", "correctAnswerIndex", "topicEmphasis", "explanation"]
+                }
+            }
+        },
+        required: ["questions"]
+    };
+
     const response = await withModelFallback(
         (model) => aiClient.models.generateContent({
             model,
             contents: prompt,
             config: {
                 responseMimeType: "application/json",
+                responseSchema: testSchema,
                 maxOutputTokens: 16384
             }
         }),
@@ -312,8 +383,6 @@ Output strictly valid JSON matching this exact schema for exactly 20 questions:
         if (start !== -1 && end !== -1) {
             cleaned = cleaned.substring(start, end + 1);
         }
-        cleaned = cleaned.replace(/[\n\r\t]/g, ' ');
-        cleaned = cleaned.replace(/,(\s*[\]}])/g, '$1');
         return JSON.parse(cleaned);
     } catch (e) {
         console.error("Failed to parse Test JSON", response.text);
