@@ -7,6 +7,7 @@ const Login = () => {
     const [activeTab, setActiveTab] = useState('login');
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
+    const [confirmPassword, setConfirmPassword] = useState('');
     const [fullName, setFullName] = useState('');
     const [loading, setLoading] = useState(false);
     
@@ -18,6 +19,16 @@ const Login = () => {
         if (params.get('mode') === 'register') {
             setActiveTab('register');
         }
+
+        const { data: authListener } = supabase.auth.onAuthStateChange((event, session) => {
+            if (event === 'PASSWORD_RECOVERY') {
+                setActiveTab('update-password');
+            }
+        });
+
+        return () => {
+            authListener.subscription.unsubscribe();
+        };
     }, [location]);
 
     const handleLogin = async (e) => {
@@ -46,6 +57,10 @@ const Login = () => {
 
     const handleSignup = async (e) => {
         e.preventDefault();
+        if (password !== confirmPassword) {
+            alert('Passwords do not match');
+            return;
+        }
         setLoading(true);
         try {
             const { error } = await supabase.auth.signUp({ 
@@ -55,6 +70,8 @@ const Login = () => {
             });
             if (error) throw error;
             alert('Signup successful! Please log in.');
+            setPassword(''); 
+            setConfirmPassword('');
             setActiveTab('login');
         } catch (err) {
             alert(err.message);
@@ -100,16 +117,6 @@ const Login = () => {
                     {/* LOGIN PANEL */}
                     {activeTab === 'login' && (
                         <div className="panel active">
-                            <button className="btn-google">
-                                <svg width="18" height="18" viewBox="0 0 48 48">
-                                    <path fill="#FFC107" d="M43.6 20H24v8h11.3C33.7 34.3 29.3 37 24 37c-7.2 0-13-5.8-13-13s5.8-13 13-13c3.1 0 5.9 1.1 8.1 2.9l6-6C34.6 5.1 29.6 3 24 3 12.4 3 3 12.4 3 24s9.4 21 21 21c10.5 0 20-7.6 20-21 0-1.3-.2-2.7-.4-4z" />
-                                    <path fill="#FF3D00" d="M6.3 14.7l7 5.1C15.1 16.1 19.2 13 24 13c3.1 0 5.9 1.1 8.1 2.9l6-6C34.6 5.1 29.6 3 24 3 16.3 3 9.7 7.8 6.3 14.7z" />
-                                    <path fill="#4CAF50" d="M24 45c5.2 0 10-1.9 13.7-5l-6.3-5.4C29.5 36.3 26.9 37 24 37c-5.2 0-9.6-3.5-11.2-8.3l-6.9 5.3C9.5 41 16.3 45 24 45z" />
-                                    <path fill="#1976D2" d="M43.6 20H24v8h11.3c-.8 2.5-2.4 4.6-4.4 6l6.3 5.4C41.5 35.9 44 30.5 44 24c0-1.3-.2-2.7-.4-4z" />
-                                </svg>
-                                Continue with Google
-                            </button>
-                            <div className="divider">or sign in with email</div>
                             <form onSubmit={handleLogin}>
                                 <div className="field">
                                     <label>Email</label>
@@ -144,6 +151,10 @@ const Login = () => {
                                 <div className="field">
                                     <label>Password</label>
                                     <input type="password" placeholder="Min 8 characters" value={password} onChange={(e) => setPassword(e.target.value)} required />
+                                </div>
+                                <div className="field">
+                                    <label>Confirm Password</label>
+                                    <input type="password" placeholder="Min 8 characters" value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} required />
                                 </div>
                                 <button type="submit" className="btn-submit" disabled={loading}>
                                     {loading ? 'Creating...' : 'Create Account'}
@@ -185,6 +196,47 @@ const Login = () => {
                             <div className="note">
                                 <a href="#" onClick={(e) => { e.preventDefault(); setActiveTab('login'); }}>← Back to Login</a>
                             </div>
+                        </div>
+                    )}
+
+                    {/* UPDATE PASSWORD PANEL */}
+                    {activeTab === 'update-password' && (
+                        <div className="panel active">
+                            <p style={{ fontSize: '.85em', color: 'var(--muted)', marginBottom: '22px', lineHeight: '1.6' }}>
+                                Please enter your new password below.
+                            </p>
+                            <form onSubmit={async (e) => {
+                                e.preventDefault();
+                                if (password !== confirmPassword) {
+                                    alert('Passwords do not match');
+                                    return;
+                                }
+                                setLoading(true);
+                                try {
+                                    const { error } = await supabase.auth.updateUser({ password });
+                                    if (error) throw error;
+                                    alert('Password updated successfully! You are now logged in.');
+                                    setPassword('');
+                                    setConfirmPassword('');
+                                    navigate('/dashboard');
+                                } catch (err) {
+                                    alert(err.message);
+                                } finally {
+                                    setLoading(false);
+                                }
+                            }}>
+                                <div className="field">
+                                    <label>New Password</label>
+                                    <input type="password" placeholder="Min 8 characters" value={password} onChange={(e) => setPassword(e.target.value)} required />
+                                </div>
+                                <div className="field">
+                                    <label>Confirm New Password</label>
+                                    <input type="password" placeholder="Min 8 characters" value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} required />
+                                </div>
+                                <button type="submit" className="btn-submit" disabled={loading}>
+                                    {loading ? 'Updating...' : 'Update Password'}
+                                </button>
+                            </form>
                         </div>
                     )}
                 </div>

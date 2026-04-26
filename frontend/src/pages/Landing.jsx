@@ -1,8 +1,16 @@
-import React from 'react';
-import { Link } from 'react-router-dom';
+import React, { useEffect } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 import './Landing.css';
 
 const Landing = () => {
+    const navigate = useNavigate();
+
+    useEffect(() => {
+        if (window.location.hash.includes('type=recovery')) {
+            navigate('/login' + window.location.hash);
+        }
+    }, [navigate]);
+
     return (
         <div className="landing-page">
             {/* NAV */}
