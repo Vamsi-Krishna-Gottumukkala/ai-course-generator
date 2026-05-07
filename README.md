@@ -107,3 +107,37 @@ Follow these steps to get the application running locally. You will need to star
 - **Frontend:** Built with React, Vite, React Router, Supabase Client, and styled with Tailwind/Vanilla CSS.
 - **Primary Backend (Node):** Powered by Express for primary API routes and authentication.
 - **ML Backend (Python):** Built with FastAPI, handling core generation, data collection, and machine learning components.
+
+---
+
+## Building the Standalone Desktop Application (.exe)
+
+For demonstrations and easy access, this project includes a custom Python script (`launcher.py`) that can bundle the entire application startup sequence into a single, clickable Windows executable (`.exe`). This executable will automatically launch the Node server, the Python ML server, and the React frontend, and then open a clean, native desktop window (WebView) pointing to the app.
+
+### Step-by-Step Build Process
+
+1. **Ensure Dependencies are Installed**  
+   Make sure you have installed the required global packaging libraries in your environment. Open a terminal in the root directory and run:
+   ```bash
+   pip install pywebview pyinstaller
+   ```
+
+2. **Configure the Launcher Script**  
+   Ensure the `launcher.py` file is located in the root directory (`ai-course-generator/launcher.py`). This script is pre-configured to locate the `backend`, `frontend`, and `ml-backend` folders automatically and launch their respective start commands (including forcing the frontend onto port 5174 to avoid conflicts).
+
+3. **Compile the Executable**  
+   From the root directory of the project, run the PyInstaller command:
+   ```bash
+   python -m PyInstaller --onefile --noconsole --name "AI Course Generator" --distpath . launcher.py
+   ```
+   - `--onefile`: Packages everything into a single `.exe`.
+   - `--noconsole`: Hides the black terminal window from appearing in the background.
+   - `--name`: Sets the name of the output application.
+   - `--distpath .`: Outputs the final executable directly into the root folder instead of a nested `dist` folder.
+
+4. **Launch the Application**  
+   Once the build completes successfully, you will find an **`AI Course Generator.exe`** file in the root folder. 
+   
+   > **Important:** Before double-clicking the `.exe`, ensure that you do not have the frontend, backend, or ML-backend servers running manually in your VS Code terminals, otherwise you will encounter port conflicts. 
+   
+   Double-click the `.exe` to start the application. When you close the native application window, the launcher will automatically terminate all background server processes safely.
