@@ -329,12 +329,7 @@ const CourseView = () => {
                                             )}
                                         </div>
                                     </div>
-
-                                    <div className="quiz-bar">
-                                        <p>Ready to test your knowledge? Take the AI-generated quiz.</p>
-                                        <button className="btn-quiz" onClick={() => setIsQuizVisible(true)}>📝 Take Quiz</button>
-                                    </div>
-                                </>
+                                 </>
                             )}
                         </>
                     ) : null}
